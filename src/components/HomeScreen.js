@@ -2,6 +2,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { animated, useSpring } from 'react-spring';
+import { Link } from 'react-router-dom';
 
 //Imports
 import Image1 from './assets/PlaceHolder_Image2.jpg';
@@ -76,7 +77,6 @@ const StyledFooter = styled.footer`
   padding: 0.25rem 0;
 `;
 
-
 function HomeScreen() {
   const animationProps = useSpring({
     opacity: 1,
@@ -100,7 +100,9 @@ function HomeScreen() {
         </ImageContainer>
 
         <ContentContainer>
-          <Button to="/game">Go to Game</Button>
+        <Link to="/game">
+          <Button>Go to Game</Button>
+        </Link>
         </ContentContainer>
       </HomeContainer>
 

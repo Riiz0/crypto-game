@@ -2,6 +2,10 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { animated, useSpring } from 'react-spring';
 
+//Imports
+import GameBoard from './Game Mechanics/GameBoard';
+import GameControls from './Game Mechanics/GameBoard';
+
 const GameContainer = styled(animated.div)`
   text-align: center;
   padding: 2rem;
@@ -67,10 +71,9 @@ function Game() {
           </GameContent>
         </>
       ) : (
-        /* Add your game content and styling here */
         <GameContent>
-          {/* Your game elements go here */}
-          <p>Your awesome crypto game content!</p>
+          <GameBoard />
+          <GameControls />
         </GameContent>
       )}
     </GameContainer>

@@ -5,8 +5,7 @@ import { animated, useSpring } from 'react-spring';
 import { Link } from 'react-router-dom';
 
 //Imports
-import Image1 from './assets/PlaceHolder_Image2.jpg';
-import Image2 from './assets/PlaceHolder_Image2.jpg';
+import Image1 from './assets/nft_games.jpg';
 
 const HomeContainer = styled(animated.div)`
   position: absolute;
@@ -87,16 +86,12 @@ function HomeScreen() {
     <>
       <HomeContainer style={animationProps}>
         <ContentContainer>
-          <h1>Welcome to Your Crypto Game</h1>
+          <h1>Welcome To The Best Crypto Game</h1>
           <p>Explore the world of blockchain gaming.</p>
         </ContentContainer>
 
         <ImageContainer>
           <Image src={Image1} alt="Image 1" />
-        </ImageContainer>
-
-        <ImageContainer>
-          <Image src={Image2} alt="Image 2" />
         </ImageContainer>
 
         <ContentContainer>

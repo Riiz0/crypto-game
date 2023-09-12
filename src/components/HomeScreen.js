@@ -1,4 +1,3 @@
-// HomeScreen.js
 import React from 'react';
 import styled from 'styled-components';
 import { animated, useSpring } from 'react-spring';
@@ -6,15 +5,14 @@ import { Link } from 'react-router-dom';
 
 //Imports
 import Image1 from './assets/nft_games.jpg';
+import Game_Background from './assets/Game_Background.mp4';
 
 const HomeContainer = styled(animated.div)`
   position: absolute;
-  top: 2rem; /* Adjust the top position as needed */
+  top: 2rem;
   left: 0;
   width: 100%;
-  height: calc(100% - 2rem); /* Adjust the height and top position as needed */
-  background-color: #5a4fcf;
-  color: #fff;
+  height: calc(100% - 2rem);
   z-index: -1;
   display: flex;
   flex-direction: column;
@@ -22,9 +20,20 @@ const HomeContainer = styled(animated.div)`
   align-items: center;
 `;
 
+const VideoBackground = styled.video`
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: -1;
+`;
+
 const ContentContainer = styled.div`
   text-align: center;
   margin: 2.6rem;
+  color: #fff; /* Add this line to set text color to white */
 `;
 
 const ImageContainer = styled.div`
@@ -50,18 +59,19 @@ const Image = styled.img`
 `;
 
 const Button = styled.button`
-  background-color: #2e2e2e; /* Choose a color that complements the navbar */
+  background-color: #000; /* Change the button color to black (#000) */
   color: #fff;
   border: none;
-  padding: 0.5rem 1rem;
+  padding: 1rem 2rem; /* Increase padding to make the button even bigger */
   font-weight: bold;
   cursor: pointer;
-  transition: background-color 0.3s, transform 0.2s, border-radius 0.2s;
+  transition: background-color 0.3s, transform 0.2s, border-radius 0.2s, color 0.3s; /* Add color transition */
+  border-radius: 25px; /* Apply border radius to give it curved edges */
 
   &:hover {
-    background-color: #ff9900; /* Change the button background color on hover */
+    background-color: #00aaff; /* Change the button background color on hover to light blue (#00aaff) */
     transform: scale(1.05); /* Add a hover pop-up effect */
-    border-radius: 25px; /* Add a border radius color effect */
+    color: #fff; /* Change text color to white on hover */
   }
 `;
 
@@ -70,7 +80,7 @@ const StyledFooter = styled.footer`
   bottom: 0;
   left: 0;
   width: 100%;
-  background-color: #333;
+  background-color: #000; /* Change to black (#000) */
   color: #fff;
   text-align: center;
   padding: 0.25rem 0;
@@ -85,6 +95,10 @@ function HomeScreen() {
   return (
     <>
       <HomeContainer style={animationProps}>
+      <VideoBackground autoPlay loop muted>
+        <source src={Game_Background} type="video/mp4" />
+      </VideoBackground>
+
         <ContentContainer>
           <h1>Welcome To The Best Crypto Game</h1>
           <p>Explore the world of blockchain gaming.</p>

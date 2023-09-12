@@ -9,7 +9,7 @@ import GameControls from './Game Mechanics/GameBoard';
 const GameContainer = styled(animated.div)`
   text-align: center;
   padding: 2rem;
-  background-color: #00aaff;
+  background-color: #06003d; /* Dark blue with a hint of purple background color */
   color: #fff;
   height: calc(100vh - 4rem); /* Adjust the height to cover a good portion of the screen */
   display: flex;
@@ -33,20 +33,22 @@ const GameContent = styled.div`
 `;
 
 const PlayButton = styled.button`
-  background-color: #ff9900;
-  color: #fff;
-  border: none;
-  padding: 0.5rem 1rem;
-  font-weight: bold;
-  cursor: pointer;
-  transition: background-color 0.3s, transform 0.2s, border-radius 0.2s;
+background-color: #000; /* Change the button color to black (#000) */
+color: #fff;
+border: none;
+padding: 1rem 2rem; /* Increase padding to make the button even bigger */
+font-weight: bold;
+cursor: pointer;
+transition: background-color 0.3s, transform 0.2s, border-radius 0.2s, color 0.3s; /* Add color transition */
+border-radius: 25px; /* Apply border radius to give it curved edges */
 
-  &:hover {
-    background-color: #2e2e2e;
-    transform: scale(1.05);
-    border-radius: 25px;
-  }
+&:hover {
+  background-color: #00aaff; /* Change the button background color on hover to light blue (#00aaff) */
+  transform: scale(1.05); /* Add a hover pop-up effect */
+  color: #fff; /* Change text color to white on hover */
+}
 `;
+
 
 function Game() {
   const [showGame, setShowGame] = useState(false); // State to control game screen visibility

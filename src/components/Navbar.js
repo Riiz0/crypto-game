@@ -6,7 +6,7 @@ import { useSpring, animated } from 'react-spring';
 
 // Styled Navbar Container
 const NavbarContainer = styled(animated.nav)`
-  background-color: #333;
+  background-color: #000; /* Change to black (#000) */
   color: #fff;
   padding: 1rem 0;
   display: flex;
@@ -31,10 +31,12 @@ const NavLink = styled(Link)`
   color: #fff;
   font-weight: bold;
   transition: color 0.3s ease-in-out;
+  
   &:hover {
-    color: #ff9900;
+    color: #00aaff; /* Change to light blue (#00aaff) */
   }
 `;
+
 
 function Navbar() {
   // Define animation using react-spring

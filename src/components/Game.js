@@ -49,7 +49,6 @@ border-radius: 25px; /* Apply border radius to give it curved edges */
 }
 `;
 
-
 function Game() {
   const [showGame, setShowGame] = useState(false); // State to control game screen visibility
 
@@ -61,14 +60,13 @@ function Game() {
   const handlePlayClick = () => {
     setShowGame(true); // Show the game screen when the "Play Now" button is clicked
   };
-
   return (
     <GameContainer style={animationProps}>
       {!showGame ? (
         <>
-          <GameTitle>Your Crypto Game Page</GameTitle>
+          <GameTitle>Crypto Game Page</GameTitle>
           <GameContent>
-            <p>Welcome to the exciting world of crypto gaming! Explore, trade, and compete to win amazing rewards.</p>
+            <p>Welcome to the exciting world of crypto gaming! Survive and have a chance win collect tickets for a chance at a roulette spin!</p>
             <PlayButton onClick={handlePlayClick}>Play Now</PlayButton>
           </GameContent>
         </>

@@ -56,6 +56,7 @@ const Image = styled.img`
   object-fit: cover;
   object-position: center;
   transition: opacity 0.2s ease-in-out;
+  opacity: 0.85; /* Set the image opacity to 75% */
 `;
 
 const Button = styled.button`
@@ -91,7 +92,6 @@ function HomeScreen() {
     opacity: 1,
     from: { opacity: 0 },
   });
-
   return (
     <>
       <HomeContainer style={animationProps}>

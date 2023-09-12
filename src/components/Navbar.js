@@ -1,10 +1,8 @@
-// Navbar.js
 import React from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { useSpring, animated } from 'react-spring';
 
-// Styled Navbar Container
 const NavbarContainer = styled(animated.nav)`
   background-color: #000; /* Change to black (#000) */
   color: #fff;
@@ -13,19 +11,16 @@ const NavbarContainer = styled(animated.nav)`
   justify-content: center;
 `;
 
-// Styled Navbar List
 const NavList = styled.ul`
   list-style: none;
   display: flex;
   padding: 0;
 `;
 
-// Styled Navbar Item
 const NavItem = styled.li`
   margin: 0 1rem;
 `;
 
-// Styled Navbar Link
 const NavLink = styled(Link)`
   text-decoration: none;
   color: #fff;
@@ -37,14 +32,12 @@ const NavLink = styled(Link)`
   }
 `;
 
-
 function Navbar() {
   // Define animation using react-spring
   const animationProps = useSpring({
     opacity: 1,
     from: { opacity: 0 },
   });
-
   return (
     <NavbarContainer style={animationProps}>
       <NavList>

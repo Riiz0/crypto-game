@@ -4,7 +4,7 @@ import { animated, useSpring } from 'react-spring';
 import { Link } from 'react-router-dom';
 
 //Imports
-import Image1 from './assets/nft_games.jpg';
+import Image1 from './assets/Background.png';
 import Game_Background from './assets/Game_Background.mp4';
 
 const HomeContainer = styled(animated.div)`

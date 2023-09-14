@@ -31,6 +31,15 @@ contract GameNFTCollection is ERC721, ERC721Enumerable, Ownable {
         _safeMint(msg.sender, tokenId);
     }
 
+    // Function for the game contract to send NFTs to users based on the reward index.
+    function sendNFT(uint256 RewardIndex) public onlyOwner {
+        require(block.timestamp >= mintingDate, "Minting is not yet available");
+        require(RewardIndex == 8, "Invalid reward index for NFT"); // Ensure it's the NFT reward index
+        uint256 tokenId = _tokenIdCounter.current();
+        _tokenIdCounter.increment();
+        _safeMint(msg.sender, tokenId);
+    }
+
     function _beforeTokenTransfer(address from, address to, uint256 tokenId, uint256 batchSize)
         internal
         override(ERC721, ERC721Enumerable)

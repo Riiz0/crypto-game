@@ -11,4 +11,30 @@ contract GameToken is ERC20, ERC20Burnable, Ownable {
         uint256 totalSupply = 42069000000 * (10**uint256(decimals()));
         _mint(msg.sender, totalSupply);
     }
+
+    event RewardClaimed(address indexed user, uint256 rewardAmount, uint256 rewardIndex);
+
+    function claimReward(uint256 rewardIndex) external {
+        require(rewardIndex >= 0 && rewardIndex < 4, "Invalid reward index");
+
+        uint256 rewardAmount;
+
+        if (rewardIndex == 0) {
+            rewardAmount = 10 * (10**uint256(decimals())); // 10 GMTK Tokens
+        } else if (rewardIndex == 1) {
+            rewardAmount = 25 * (10**uint256(decimals())); // 25 GMTK Tokens
+        } else if (rewardIndex == 2) {
+            rewardAmount = 50 * (10**uint256(decimals())); // 50 GMTK Tokens
+        } else if (rewardIndex == 3) {
+            rewardAmount = 100 * (10**uint256(decimals())); // 100 GMTK Tokens
+        } else {
+            revert("Invalid reward index");
+        }
+
+        require(balanceOf(address(this)) >= rewardAmount, "Contract balance is insufficient");
+
+        _transfer(address(this), msg.sender, rewardAmount);
+
+        emit RewardClaimed(msg.sender, rewardAmount, rewardIndex);
+    }
 }

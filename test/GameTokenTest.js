@@ -1,63 +1,145 @@
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
 
-describe("GameToken contract", function () {
-  let gameToken;
-  let owner;
-  let user;
+describe("GameToken Contract", function () {
+  let gameToken, accounts, owner, user1, user2
+  
+  beforeEach(async () => 
+  {
+    accounts = await ethers.getSigners()
+    owner = accounts[0]
+    user1 = accounts[1]
+    user2 = accounts[3]
 
-  beforeEach(async () => {
-    [owner, user] = await ethers.getSigners();
+    //Deploy GameToken For Initial Supply and Minting
+    const deployGameToken = await ethers.getContractFactory("GameToken")
+    gameToken = await deployGameToken.Deploy()
+    await gameToken.deployed()
+  })
 
-    // Deploy the GameToken contract
-    const GameToken = await ethers.getContractFactory("GameToken");
-    gameToken = await GameToken.deploy();
-    await gameToken.deployed();
+  //Check Contract Owner Balance
+  describe("Check Contract Owner Balance", () => {
+    it("Contract Should Not Have a Balance Of Zero", async () => {
+      expect(await gameToken.balanceOf(owner.address)).to.be.gt(0);
+    });
+
+    it("Contract Should Have Correct Name and Symbol", async () => {
+      expect(await gameToken.name()).to.equal("GameToken")
+      expect(await gameToken.symbol()).to.equal("GMTK")
+    })
+
+    it("Token Contract Should Mint To Owner", async () => {
+      const initialBalance = await gameToken.balanceOf(owner.address)
+      expect(initialBalance).to.equal(42069000000 * (10 ** 18))
+    })
+
+    it("Check Balance of User1 After Receiving Tokens From Contract Owner", async () => {
+      const transferAmount = ethers.parseEther("100")
+
+      await gameToken.transfer(user1.address, transferAmount)
+      const user1Balance = await gameToken.balanceOf(user1.address)
+      expect(user1Balance).to.equal(transferAmount)
+    })
+
+    it("Send Tokens Between User1 and User2", async () => {
+      const sentAmount = ethers.parseEther("25")
+
+      await gameToken.connect(user1).transfer(user2.address, sendAmount);
+      const user2Balance = await gameToken.balanceOf(user2.address)
+      expect(user2Balance).to.equal(sentAmount)
+    })
+  })
+
+  // Minting Restrictions
+  describe("Minting Restrictions", () => {
+    let initialBalance;
+    let user1BurnBalance;
+
+    beforeEach(async () => {
+      initialBalance = await gameToken.balanceOf(owner.address);
+      expect(initialBalance).to.equal(42069000000 * (10 ** 18));
+    });
+
+    it("Token Burn By Owner Contract", async () => {
+      const ownerBurnAmount = ethers.parseEther("1000");
+
+      await gameToken.burn(owner.address, ownerBurnAmount);
+      const updatedBalance = await gameToken.balanceOf(owner.address);
+      expect(updatedBalance).to.equal(initialBalance.sub(ownerBurnAmount));
+    });
+
+    it("Token Burn By Non-Owner", async () => {
+      const transferTokensForBurn = ethers.parseEther("100");
+      const nonOwnerBurnAmount = ethers.parseEther("100");
+
+      await gameToken.transfer(user1.address, transferTokensForBurn);
+      user1BurnBalance = await gameToken.balanceOf(user1.address);
+      expect(user1BurnBalance).to.equal(transferTokensForBurn);
+
+      await gameToken.burn(user1.address, nonOwnerBurnAmount);
+      const updatedUser1Balance = await gameToken.balanceOf(user1.address);
+      expect(updatedUser1Balance).to.equal(transferTokensForBurn.sub(nonOwnerBurnAmount));
+    });
   });
 
-  it("Should deploy the GameToken contract", async function () {
-    expect(gameToken.address).to.not.equal(0);
+  // Reward Claiming
+  describe("Reward Claiming", () => {
+    let initialBalance;
+
+    beforeEach(async () => {
+      initialBalance = await gameToken.balanceOf(owner.address);
+      expect(initialBalance).to.equal(42069000000 * (10 ** 18));
+    });
+
+    it("Call Function 'claimReward' with Valid Reward Indices", async () => {
+      const rewardIndex = 0; // Assuming 10 GMTK Tokens reward
+      const rewardAmount = ethers.parseEther("10");
+
+      const user1BalanceBefore = await gameToken.balanceOf(user1.address);
+      await gameToken.claimReward(rewardIndex);
+      const user1BalanceAfter = await gameToken.balanceOf(user1.address);
+
+      // Check that the user's balance increased by the expected reward amount
+      expect(user1BalanceAfter.sub(user1BalanceBefore)).to.equal(rewardAmount);
+
+      // Verify that the 'RewardClaimed' event is emitted
+      const tx = await gameToken.claimReward(rewardIndex);
+      const receipt = await tx.wait();
+      const event = receipt.events.find((e) => e.event === "RewardClaimed");
+
+      // Check that the event was emitted with the correct parameters
+      expect(event.args.user).to.equal(user1.address);
+      expect(event.args.rewardAmount).to.equal(rewardAmount);
+      expect(event.args.rewardIndex).to.equal(rewardIndex);
+    });
+
+    it("Call Function 'claimReward' with Invalid Reward Indices", async () => {
+      try {
+        await gameToken.claimReward(-1); // An invalid reward index
+        expect.fail("Expected an error but didn't get one");
+      } catch (error) {
+        expect(error.message).to.contain("Invalid reward index");
+      }
+    });
   });
 
-  it("Should have the correct name and symbol", async function () {
-    expect(await gameToken.name()).to.equal("GameToken");
-    expect(await gameToken.symbol()).to.equal("GMTK");
+  // Reward Claiming Token Contract Insufficient Token Amount
+  describe("Reward Claiming Token Contract Insufficient Token Amount", () => {
+    it("Test Claiming Rewards When The Contract Balance Is Insufficient", async () => {
+      // Reduce the contract's balance to an insufficient level (less than rewardAmount)
+      const insufficientBalance = ethers.parseEther("1");
+      const rewardIndex = 0; // Assuming 10 GMTK Tokens reward
+      
+      // Set the contract's balance to be insufficient
+      await gameToken.transfer(user1.address, insufficientBalance);
+
+      // Attempt to claim rewards with valid rewardIndices
+      try {
+        await gameToken.claimReward(rewardIndex);
+        expect.fail("Expected an error but didn't get one");
+      } catch (error) {
+        expect(error.message).to.contain("Contract balance is insufficient");
+      }
+    });
   });
-
-  it("Should mint tokens to the owner", async function () {
-    const initialBalance = await gameToken.balanceOf(owner.address);
-    expect(initialBalance).to.equal(42069000000 * (10 ** 18)); // Initial total supply
-  });
-
-  it("Should allow transferring tokens between accounts", async function () {
-    const transferAmount = ethers.utils.parseEther("100");
-
-    // Transfer tokens from owner to user
-    await gameToken.transfer(user.address, transferAmount);
-    const userBalance = await gameToken.balanceOf(user.address);
-    expect(userBalance).to.equal(transferAmount);
-
-    // Check owner's balance
-    const ownerBalance = await gameToken.balanceOf(owner.address);
-    expect(ownerBalance).to.equal(42069000000 * (10 ** 18) - transferAmount);
-  });
-
-  it("Should allow users to claim rewards", async function () {
-    const rewardIndex = 0; // Assuming 10 GMTK Tokens reward
-    const rewardAmount = ethers.utils.parseEther("10");
-
-    // Transfer some tokens to the contract
-    await gameToken.transfer(gameToken.address, rewardAmount);
-
-    // User claims the reward
-    await gameToken.connect(user).claimReward(rewardIndex);
-
-    // Check user's balance
-    const userBalance = await gameToken.balanceOf(user.address);
-    expect(userBalance).to.equal(rewardAmount);
-
-    // Check contract's balance (should have decreased)
-    const contractBalance = await gameToken.balanceOf(gameToken.address);
-    expect(contractBalance).to.equal(0);
-  });
-});
+})

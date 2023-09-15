@@ -11,9 +11,9 @@ function App() {
     <Router>
       <div>
         <Navbar />
-        <Routes> {/* Wrap your Route components in a Routes element */}
-          <Route path="/" element={<HomeScreen />} /> {/* Use the "element" prop */}
-          <Route path="/game" element={<Game />} /> {/* Use the "element" prop */}
+        <Routes>
+          <Route path="/" element={<HomeScreen />} />
+          <Route path="/game" element={<Game />} />
         </Routes>
       </div>
     </Router>

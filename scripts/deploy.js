@@ -4,7 +4,7 @@
 // You can also run a script with `npx hardhat run <script>`. If you do that, Hardhat
 // will compile your contracts, add the Hardhat Runtime Environment's members to the
 // global scope, and execute the script.
-const { ethers, upgrades } = require("hardhat");
+const { ethers } = require("hardhat");
 
 async function main() {
   // Define deployer account
@@ -14,32 +14,33 @@ async function main() {
 
   // Deploy GameToken
   const GameToken = await ethers.getContractFactory("GameToken");
-  const gameToken = await upgrades.deployProxy(GameToken, []);
-  await gameToken.deployed();
-  console.log(`GameToken deployed to address: ${gameToken.address}`);
+  const gameToken = await GameToken.deploy();
+  await gameToken.waitForDeployment();
+  console.log(`GameToken deployed to address: ${gameToken.target}`);
 
   // Deploy GameTicket
   const GameTicket = await ethers.getContractFactory("GameTicket");
-  const gameTicket = await upgrades.deployProxy(GameTicket, []);
-  await gameTicket.deployed();
-  console.log(`GameTicket deployed to address: ${gameTicket.address}`);
+  const gameTicket = await GameTicket.deploy();
+  await gameTicket.waitForDeployment();
+  console.log(`GameTicket deployed to address: ${gameTicket.target}`);
 
   // Deploy GameNFTCollection
+  const initialMintingDate = 0; // Replace with your desired initial minting date
   const GameNFTCollection = await ethers.getContractFactory("GameNFTCollection");
-  const gameNFTCollection = await upgrades.deployProxy(GameNFTCollection, []);
-  await gameNFTCollection.deployed();
-  console.log(`GameNFTCollection deployed to address: ${gameNFTCollection.address}`);
+  const gameNFTCollection = await GameNFTCollection.deploy(initialMintingDate);
+  await gameNFTCollection.waitForDeployment();
+  console.log(`GameNFTCollection deployed to address: ${gameNFTCollection.target}`);
 
-  // Deploy LeaderboardContract
+  // Deploy LeaderBoardContract
   const LeaderboardContract = await ethers.getContractFactory("LeaderboardContract");
-  const leaderboardContract = await upgrades.deployProxy(LeaderboardContract, []);
-  await leaderboardContract.deployed();
-  console.log(`LeaderboardContract deployed to address: ${leaderboardContract.address}`);
+  const leaderboardContract = await LeaderboardContract.deploy();
+  await leaderboardContract.waitForDeployment();
+  console.log(`LeaderboardContract deployed to address: ${leaderboardContract.target}`);
 }
 
-// We recommend this pattern to be able to use async/await everywhere
-// and properly handle errors.
-main().catch((error) => {
-  console.error(error);
-  process.exitCode = 1;
-});
+main()
+  .then(() => process.exit(0))
+  .catch(error => {
+    console.error(error);
+    process.exit(1);
+  });

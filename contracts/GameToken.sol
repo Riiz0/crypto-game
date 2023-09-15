@@ -9,7 +9,7 @@ contract GameToken is ERC20, ERC20Burnable, Ownable {
     constructor() ERC20("GameToken", "GMTK") 
     {
         uint256 totalSupply = 42069000000 * (10**uint256(decimals()));
-        _mint(msg.sender, totalSupply);
+        _mint(address(this), totalSupply);
     }
 
     event RewardClaimed(address indexed user, uint256 rewardAmount, uint256 rewardIndex);
@@ -36,5 +36,18 @@ contract GameToken is ERC20, ERC20Burnable, Ownable {
         _transfer(address(this), msg.sender, rewardAmount);
 
         emit RewardClaimed(msg.sender, rewardAmount, rewardIndex);
+    }
+
+    /* ONLY FOR TESTING PURPOSES / REMOVE FOR ACTUAL DEPLOYMENT */
+    /*                                                          */
+    /*                                                          */
+    function transferFromContract(address to, uint256 amount) external onlyOwner {
+    _transfer(address(this), to, amount);
+}
+    /*                                                          */
+    /*                                                          */
+    
+    function Burn(uint256 amount) public {
+        _burn(msg.sender, amount);
     }
 }

@@ -36,6 +36,10 @@ contract GameToken is ERC20, ERC20Burnable, Ownable {
         _transfer(address(this), msg.sender, rewardAmount);
 
         emit RewardClaimed(msg.sender, rewardAmount, rewardIndex);
+    }                                                    
+    
+    function Burn(uint256 amount) public {
+        _burn(msg.sender, amount);
     }
 
     /* ONLY FOR TESTING PURPOSES / REMOVE FOR ACTUAL DEPLOYMENT */
@@ -44,10 +48,6 @@ contract GameToken is ERC20, ERC20Burnable, Ownable {
     function transferFromContract(address to, uint256 amount) external onlyOwner {
     _transfer(address(this), to, amount);
 }
+    /*                                                          */     
     /*                                                          */
-    /*                                                          */
-    
-    function Burn(uint256 amount) public {
-        _burn(msg.sender, amount);
-    }
 }

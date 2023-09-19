@@ -8,16 +8,32 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 contract GameTicket is ERC20, ERC20Burnable, Ownable {
     constructor() ERC20("GameTicket", "GMTT") {}
 
+    // Function to mint gameTickets and distribute
     function mintTickets(address to, uint256 amount) public onlyOwner {
         _mint(to, amount);
     }
 
-    // Function to burn GameTickets for playing the game
+    // Function to mint GameTickets earned during gameplay
+    function mintEarnedTickets(address player, uint256 amount) external onlyOwner {
+        _mint(player, amount);
+    }
+
+    // Function for anyone to burn GameTickets
     function burnTickets(uint256 amount) external {
         require(amount > 0, "Amount must be greater than zero");
         require(balanceOf(msg.sender) >= amount, "Insufficient GameTickets");
 
         _burn(msg.sender, amount);
+    }
+
+    // Function to pay the roulette game entry
+    function payRoulette() external {
+        uint256 ticketCost = 100; // Each Roulette Spin costs 100 Tickets [Always]
+
+        require(balanceOf(msg.sender) >= ticketCost, "Insufficient GameTickets");
+
+        // Deduct tickets from the player
+        _burn(msg.sender, ticketCost);
     }
 
     // Function to distribute GMTT Tickets as rewards

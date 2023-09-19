@@ -37,22 +37,27 @@ describe('GameToken', () => {
   describe('Transfer Tokens', () => {
     it('Should transfer tokens from the contract to user1', async () => {
       const amount = tokens(100)
+      const gameTokenBalanceBefore = await gameToken.balanceOf(gameToken.target)
+      const user1BalanceBefore = await gameToken.balanceOf(user1.address)
 
       await gameToken.transferFromContract(user1.address, amount);
     
-      const user1Balance = await gameToken.balanceOf(user1.address)
-      const contractBalance = await gameToken.balanceOf(gameToken.target)
+      const user1BalanceAfter = await gameToken.balanceOf(user1.address)
+      const gameTokenBalanceAfter = await gameToken.balanceOf(gameToken.target)
     
-      expect(user1Balance).to.equal(amount);
-      expect(contractBalance).to.equal(tokens(42068999900)); // Total supply - transferred amount
+      expect(user1BalanceAfter).to.equal(user1BalanceBefore + amount)
+      expect(gameTokenBalanceAfter).to.equal(gameTokenBalanceBefore - amount)
 
+      const gameTokenBalanceAfterFirstAmount = await gameToken.balanceOf(gameToken.target)
+      const user1BalanceAfterFirstAmount = await gameToken.balanceOf(user1.address)
 
       await gameToken.connect(user1).transfer(gameToken.target, amount)
-      const user1NewBalance = await gameToken.balanceOf(user1.address)
-      const contractNewBalance = await gameToken.balanceOf(gameToken.target)
 
-      expect(user1NewBalance).to.equal(0)
-      expect(contractNewBalance).to.equal(tokens(42069000000))
+      const user1FinalBalance = await gameToken.balanceOf(user1.address)
+      const gameTokenFinalBalance = await gameToken.balanceOf(gameToken.target)
+
+      expect(user1FinalBalance).to.equal(user1BalanceAfterFirstAmount - amount)
+      expect(gameTokenFinalBalance).to.equal(gameTokenBalanceAfterFirstAmount + amount)
     }) 
   })
 

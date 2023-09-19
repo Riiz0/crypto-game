@@ -102,5 +102,4 @@ contract RewardDistribution is Ownable {
             revert("Invalid reward index for NFT");
         }
     }
-    // Add any other functions necessary for reward distribution
 }

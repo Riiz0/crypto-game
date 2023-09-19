@@ -6,11 +6,11 @@ async function main() {
 
   console.log(`Deploying contracts with account: ${deployer.address}`);
 
-  // Deploy LeaderBoardContract
-  const LeaderboardContract = await ethers.getContractFactory("LeaderboardContract");
-  const leaderboardContract = await LeaderboardContract.deploy();
-  await leaderboardContract.waitForDeployment();
-  console.log(`LeaderboardContract deployed to address: ${leaderboardContract.target}`);
+  // Deploy Leaderboard contract
+  const Leaderboard = await ethers.getContractFactory("Leaderboard");
+  const leaderboard = await Leaderboard.deploy();
+  await leaderboard.waitForDeployment();
+  console.log(`Leaderboard deployed to address: ${leaderboard.target}`);
 }
 
 main()

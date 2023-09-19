@@ -157,9 +157,19 @@ describe ('GameTicket', () => {
   });
 
   //distribute GMTT Tickets as rewards
-  describe('', () => {
-    it('', async () => {
+  describe('Distribute GMTT Tickets As Rewards', () => {
+    it('Should allow users to claim rewards', async () => {
+      const rewardIndex = 7
+      const user1BalanceBefore = await gameTicket.balanceOf(user1.address)
+      const contractBalanceBefore = await gameTicket.balanceOf(gameTicket.target)
+      
+      await gameTicket.connect(user1).claimTickets(rewardIndex)
 
+      const user1BalanceAfter = await gameTicket.balanceOf(user1.address)
+      const contractBalanceAfter = await gameTicket.balanceOf(gameTicket.target)
+
+      expect(user1BalanceAfter).to.equal(user1BalanceBefore + tokens(100))
+      expect(contractBalance).to.equal(contractBalanceAfter - contractBalanceBefore)
     })
   })
 })

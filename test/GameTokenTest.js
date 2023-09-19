@@ -61,10 +61,10 @@ describe('GameToken', () => {
     }) 
   })
 
-  describe('claimReward', () => {
+  describe('Distribute GMTK Tokens As Rewards', () => {
     it('Should allow users to claim rewards', async () => {
       const rewardIndex = 0 // Assuming rewardIndex 0 corresponds to 10 tokens
-      await gameToken.connect(user1).claimReward(rewardIndex)
+      await gameToken.connect(user1).claimToken(rewardIndex)
       const user1Balance = await gameToken.balanceOf(user1.address)
       const contractBalance = await gameToken.balanceOf(gameToken.target)
 

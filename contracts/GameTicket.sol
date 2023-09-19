@@ -8,14 +8,19 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 contract GameTicket is ERC20, ERC20Burnable, Ownable {
     constructor() ERC20("GameTicket", "GMTT") {}
 
-    // Function to mint gameTickets and distribute
+    // Event for token transfers
+    event TokenTransfer(address indexed from, address indexed to, uint256 value);
+
+    // Function to mint gameTickets and distribute (if needed)
     function mintTickets(address to, uint256 amount) public onlyOwner {
         _mint(to, amount);
     }
 
-    // Function to mint GameTickets earned during gameplay
-    function mintEarnedTickets(address player, uint256 amount) external onlyOwner {
-        _mint(player, amount);
+    // Function to distribute GameTickets earned during gameplay
+    function distributeTickets(address player, uint256 amount) external onlyOwner {
+        // This function allows for the distribution of GameTickets to players based on their in-game achievements
+        _transfer(owner(), player, amount);
+        emit TokenTransfer(owner(), player, amount);
     }
 
     // Function for anyone to burn GameTickets
@@ -24,42 +29,17 @@ contract GameTicket is ERC20, ERC20Burnable, Ownable {
         require(balanceOf(msg.sender) >= amount, "Insufficient GameTickets");
 
         _burn(msg.sender, amount);
+        emit TokenTransfer(msg.sender, address(0), amount);
     }
 
-    // Function to pay the roulette game entry
-    function payRoulette() external {
-        uint256 ticketCost = 100; // Each Roulette Spin costs 100 Tickets [Always]
+    // Function to pay the roulette game entry with a fixed cost of 100 GameTickets
+    function payEntry() external {
+        uint256 ticketCost = 100; // Fixed entry fee
 
         require(balanceOf(msg.sender) >= ticketCost, "Insufficient GameTickets");
 
         // Deduct tickets from the player
         _burn(msg.sender, ticketCost);
-    }
-
-    // Function to distribute GMTT Tickets as rewards
-    function distributeGMTTTickets(uint256 rewardIndex) external onlyOwner {
-        require(rewardIndex >= 4 && rewardIndex < 8, "Invalid reward index for GMTT Tickets");
-
-        uint256 rewardAmount;
-
-        if (rewardIndex == 4) {
-            // 10 GMTT Tickets
-            rewardAmount = 10 * (10**uint256(decimals()));
-        } else if (rewardIndex == 5) {
-            // 25 GMTT Tickets
-            rewardAmount = 25 * (10**uint256(decimals()));
-        } else if (rewardIndex == 6) {
-            // 50 GMTT Tickets
-            rewardAmount = 50 * (10**uint256(decimals()));
-        } else if (rewardIndex == 7) {
-            // 100 GMTT Tickets
-            rewardAmount = 100 * (10**uint256(decimals()));
-        } else {
-            revert("Invalid reward index");
-        }
-
-        require(balanceOf(address(this)) >= rewardAmount, "Contract balance is insufficient");
-
-        _transfer(address(this), msg.sender, rewardAmount);
+        emit TokenTransfer(msg.sender, owner(), ticketCost);
     }
 }

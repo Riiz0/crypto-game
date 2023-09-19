@@ -3,7 +3,7 @@ pragma solidity ^0.8.9;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract LeaderboardContract is Ownable {
+contract Leaderboard is Ownable {
     struct Player {
         uint256 totalEnemiesKilled;
         uint256 highestLevelCompleted;

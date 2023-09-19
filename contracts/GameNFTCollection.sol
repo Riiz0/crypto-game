@@ -13,38 +13,44 @@ contract GameNFTCollection is ERC721, ERC721Enumerable, Ownable {
 
     uint256 public mintingDate;
 
-    constructor(uint256 _initialMintingDate) ERC721("GameNFTCollection", "GNFT") 
-    {
+    constructor(uint256 _initialMintingDate) ERC721("GameNFTCollection", "GNFT") {
         mintingDate = _initialMintingDate;
     }
 
     // Function to update the minting date by the contract owner.
-    function setMintingDate(uint256 _newMintingDate) public onlyOwner 
-    {
+    function setMintingDate(uint256 _newMintingDate) public onlyOwner {
         mintingDate = _newMintingDate;
     }
+
+    // Event for NFT minting
+    event NFTMinted(address indexed owner, uint256 tokenId);
 
     function safeMint() public onlyOwner {
         require(block.timestamp >= mintingDate, "Minting is not yet available");
         uint256 tokenId = _tokenIdCounter.current();
         _tokenIdCounter.increment();
         _safeMint(msg.sender, tokenId);
+        
+        emit NFTMinted(msg.sender, tokenId); // Emit the NFTMinted event
     }
 
-    // Function for the game contract to send NFTs to users based on the reward index.
-    function sendNFT(uint256 RewardIndex) public onlyOwner {
+    // Function to mint an NFT on behalf of a user (to be called by the RewardDistribution Contract)
+    function mintNFT(address to) external onlyOwner returns (uint256) {
         require(block.timestamp >= mintingDate, "Minting is not yet available");
-        require(RewardIndex == 8, "Invalid reward index for NFT"); // Ensure it's the NFT reward index
         uint256 tokenId = _tokenIdCounter.current();
         _tokenIdCounter.increment();
-        _safeMint(msg.sender, tokenId);
+        _safeMint(to, tokenId);
+
+        emit NFTMinted(to, tokenId); // Emit the NFTMinted event
+
+        return tokenId; // Return the minted tokenId
     }
 
     function _beforeTokenTransfer(address from, address to, uint256 tokenId, uint256 batchSize)
         internal
         override(ERC721, ERC721Enumerable)
     {
-            super._beforeTokenTransfer(from, to, tokenId, batchSize);
+        super._beforeTokenTransfer(from, to, tokenId, batchSize);
     }
 
     function supportsInterface(bytes4 interfaceId)
@@ -53,6 +59,6 @@ contract GameNFTCollection is ERC721, ERC721Enumerable, Ownable {
         override(ERC721, ERC721Enumerable)
         returns (bool)
     {
-            return super.supportsInterface(interfaceId);
+        return super.supportsInterface(interfaceId);
     }
 }

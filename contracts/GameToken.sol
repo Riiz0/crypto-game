@@ -6,48 +6,21 @@ import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract GameToken is ERC20, ERC20Burnable, Ownable {
-    constructor() ERC20("GameToken", "GMTK") 
-    {
+    constructor() ERC20("GameToken", "GMTK") {
         uint256 totalSupply = 42069000000 * (10**uint256(decimals()));
-        _mint(address(this), totalSupply);
+        _mint(owner(), totalSupply); // Mint to the contract owner
     }
 
-    event RewardClaimed(address indexed user, uint256 rewardAmount, uint256 rewardIndex);
+    // Emit an event for any token transfer (optional but recommended)
+    event TokenTransfer(address indexed from, address indexed to, uint256 value);
 
-    function claimReward(uint256 rewardIndex) external {
-        require(rewardIndex >= 0 && rewardIndex < 4, "Invalid reward index");
+    function transfer(address to, uint256 value) public override returns (bool) {
+        super.transfer(to, value);
+        emit TokenTransfer(msg.sender, to, value);
+        return true;
+    }
 
-        uint256 rewardAmount;
-
-        if (rewardIndex == 0) {
-            rewardAmount = 10 * (10**uint256(decimals())); // 10 GMTK Tokens
-        } else if (rewardIndex == 1) {
-            rewardAmount = 25 * (10**uint256(decimals())); // 25 GMTK Tokens
-        } else if (rewardIndex == 2) {
-            rewardAmount = 50 * (10**uint256(decimals())); // 50 GMTK Tokens
-        } else if (rewardIndex == 3) {
-            rewardAmount = 100 * (10**uint256(decimals())); // 100 GMTK Tokens
-        } else {
-            revert("Invalid reward index");
-        }
-
-        require(balanceOf(address(this)) >= rewardAmount, "Contract balance is insufficient");
-
-        _transfer(address(this), msg.sender, rewardAmount);
-
-        emit RewardClaimed(msg.sender, rewardAmount, rewardIndex);
-    }                                                    
-    
     function Burn(uint256 amount) public {
         _burn(msg.sender, amount);
     }
-
-    /* ONLY FOR TESTING PURPOSES / REMOVE FOR ACTUAL DEPLOYMENT */
-    /*                                                          */
-    /*                                                          */
-    function transferFromContract(address to, uint256 amount) external onlyOwner {
-    _transfer(address(this), to, amount);
-}
-    /*                                                          */     
-    /*                                                          */
 }

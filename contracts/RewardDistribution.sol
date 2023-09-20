@@ -91,11 +91,11 @@ contract RewardDistribution is Ownable {
         }
     }
 
-    function claimNFTReward(uint256 rewardIndex) external {
+    function claimNFTReward(uint256 rewardIndex, string memory uri) external {
         // Implement reward distribution logic with GameNFTCollection
         if (rewardIndex == 8) {
-            // Mint 1 random GameNFT to the user 0.5% chance
-            uint256 tokenId = gameNFTCollection.mintNFT(msg.sender);
+            // Mint 1 random GameNFT to the user with the specified URI and 0.5% chance
+            uint256 tokenId = gameNFTCollection.mintNFTReward(msg.sender, uri);
             emit NFTClaimed(msg.sender, rewardIndex, tokenId);
         } else {
             // Handle invalid reward index

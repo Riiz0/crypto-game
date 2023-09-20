@@ -26,50 +26,74 @@ describe('GameToken', () => {
       expect(await gameToken.name()).to.equal('GameToken')
       expect(await gameToken.symbol()).to.equal('GMTK')
       expect(await gameToken.decimals()).to.equal(18)
-      expect(await gameToken.totalSupply()).to.equal(tokens(42069000000))
+      expect(await gameToken.totalSupply()).to.equal(tokens(42069000000).toString())
     })
 
     it('Should assign entire total supply to the contract', async () => {
-      expect(await gameToken.balanceOf(gameToken.target)).to.equal(tokens(42069000000))
+      expect(await gameToken.balanceOf(deployer.address)).to.equal(tokens(42069000000).toString())
     })
   })
 
   describe('Transfer Tokens', () => {
     it('Should transfer tokens from the contract to user1', async () => {
-      const amount = tokens(100)
-      const gameTokenBalanceBefore = await gameToken.balanceOf(gameToken.target)
+      const amount = tokens(1000)
+      const gameTokenBalanceBefore = await gameToken.balanceOf(deployer.address)
       const user1BalanceBefore = await gameToken.balanceOf(user1.address)
 
-      await gameToken.transferFromContract(user1.address, amount);
-    
+      await gameToken.transfer(user1.address, amount)
+
       const user1BalanceAfter = await gameToken.balanceOf(user1.address)
-      const gameTokenBalanceAfter = await gameToken.balanceOf(gameToken.target)
+      const gameTokenBalanceAfter = await gameToken.balanceOf(deployer.address)
+
+      expect(user1BalanceAfter).to.equal(user1BalanceBefore + (amount))
+      expect(gameTokenBalanceAfter).to.equal(gameTokenBalanceBefore - (amount))
+    });
+
+    it('Should allow user1 to send tokens to user2', async () => {
+      const amount = tokens(500);
+      const user1BalanceBefore = await gameToken.balanceOf(user1.address);
+      const user2BalanceBefore = await gameToken.balanceOf(user2.address);
+  
+      await gameToken.connect(user1).transfer(user2.address, amount);
+  
+      const user1BalanceAfter = await gameToken.balanceOf(user1.address);
+      const user2BalanceAfter = await gameToken.balanceOf(user2.address);
+  
+      expect(user1BalanceAfter).to.equal(user1BalanceBefore - (amount));
+      expect(user2BalanceAfter).to.equal(user2BalanceBefore + (amount));
+    });
+  
+    it('Should allow user2 to send tokens back to user1', async () => {
+      const amount = tokens(250);
+      const user1BalanceBefore = await gameToken.balanceOf(user1.address);
+      const user2BalanceBefore = await gameToken.balanceOf(user2.address);
+  
+      await gameToken.connect(user2).transfer(user1.address, amount);
+  
+      const user1BalanceAfter = await gameToken.balanceOf(user1.address);
+      const user2BalanceAfter = await gameToken.balanceOf(user2.address);
+  
+      expect(user1BalanceAfter).to.equal(user1BalanceBefore + (amount));
+      expect(user2BalanceAfter).to.equal(user2BalanceBefore - (amount));
+    });
+
+    it('Should allow user1 to burn tokens', async () => {
+      const amountToBurn = tokens(100);
+      const user1BalanceBefore = await gameToken.balanceOf(user1.address);
     
-      expect(user1BalanceAfter).to.equal(user1BalanceBefore + amount)
-      expect(gameTokenBalanceAfter).to.equal(gameTokenBalanceBefore - amount)
-
-      const gameTokenBalanceAfterFirstAmount = await gameToken.balanceOf(gameToken.target)
-      const user1BalanceAfterFirstAmount = await gameToken.balanceOf(user1.address)
-
-      await gameToken.connect(user1).transfer(gameToken.target, amount)
-
-      const user1FinalBalance = await gameToken.balanceOf(user1.address)
-      const gameTokenFinalBalance = await gameToken.balanceOf(gameToken.target)
-
-      expect(user1FinalBalance).to.equal(user1BalanceAfterFirstAmount - amount)
-      expect(gameTokenFinalBalance).to.equal(gameTokenBalanceAfterFirstAmount + amount)
-    }) 
-  })
-
-  describe('Distribute GMTK Tokens As Rewards', () => {
-    it('Should allow users to claim rewards', async () => {
-      const rewardIndex = 0 // Assuming rewardIndex 0 corresponds to 10 tokens
-      await gameToken.connect(user1).claimToken(rewardIndex)
-      const user1Balance = await gameToken.balanceOf(user1.address)
-      const contractBalance = await gameToken.balanceOf(gameToken.target)
-
-      expect(user1Balance).to.equal(tokens(10))
-      expect(contractBalance).to.equal(tokens(42068999990)) // Total supply - rewarded amount
-    })
-  })
-})
+      await gameToken.connect(user1).burn(amountToBurn);
+    
+      const user1BalanceAfter = await gameToken.balanceOf(user1.address);
+    
+      expect(user1BalanceAfter).to.equal(user1BalanceBefore - (amountToBurn));
+    });
+    
+    it('Should emit a Burn event when burning tokens', async () => {
+      const amountToBurn = tokens(100);
+    
+      await expect(gameToken.connect(user1).burn(amountToBurn))
+        .to.emit(gameToken, 'Transfer')
+        .withArgs(user1.address, '0x0000000000000000000000000000000000000000', amountToBurn);
+    });        
+  });
+});

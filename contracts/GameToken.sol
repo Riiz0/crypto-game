@@ -11,7 +11,7 @@ contract GameToken is ERC20, ERC20Burnable, Ownable {
         _mint(owner(), totalSupply); // Mint to the contract owner
     }
 
-    // Emit an event for any token transfer (optional but recommended)
+    // Emit an event for any token transfer
     event TokenTransfer(address indexed from, address indexed to, uint256 value);
 
     function transfer(address to, uint256 value) public override returns (bool) {

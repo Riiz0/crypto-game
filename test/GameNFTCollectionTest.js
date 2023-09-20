@@ -1,65 +1,88 @@
-const { expect } = require("chai");
-const { ethers } = require("hardhat");
+const { expect } = require('chai');
+const { ethers } = require('hardhat');
 
-describe("GameNFTCollection contract", function () {
-  let gameNFT;
-  let owner;
-  let user;
+describe('GameNFTCollection', () => {
+  let gameNFTCollection, deployer, user1, user2;
+  const initialMintingDate = Math.floor(Date.now() / 1000);
 
-  beforeEach(async () => {
-    [owner, user] = await ethers.getSigners();
+  before(async () => {
+    const GameNFTCollection = await ethers.getContractFactory('GameNFTCollection');
+    gameNFTCollection = await GameNFTCollection.deploy(initialMintingDate);
+    await gameNFTCollection.waitForDeployment();
 
-    // Deploy the GameNFTCollection contract
-    const GameNFTCollection = await ethers.getContractFactory("GameNFTCollection");
-    gameNFT = await GameNFTCollection.deploy(0); // Initial minting date set to 0
-    await gameNFT.deployed();
+    console.log(`Contract Address: ${gameNFTCollection.target}`)
+
+    accounts = await ethers.getSigners()
+    deployer = accounts[0]
+    user1 = accounts[1]
+    user2 = accounts[2]
   });
 
-  it("Should deploy the GameNFTCollection contract", async function () {
-    expect(gameNFT.address).to.not.equal(0);
+  describe('Deployment', () => {
+    it('Should have the correct name, symbol, and initial minting date', async () => {
+      expect(await gameNFTCollection.name()).to.equal('GameNFTCollection');
+      expect(await gameNFTCollection.symbol()).to.equal('GNFT');
+      expect(await gameNFTCollection.mintingDate()).to.equal(initialMintingDate);
+    });
   });
 
-  it("Should have the correct name and symbol", async function () {
-    expect(await gameNFT.name()).to.equal("GameNFTCollection");
-    expect(await gameNFT.symbol()).to.equal("GNFT");
+  describe('setMintingDate', () => {
+    it('Should allow the deployer to update the minting date', async () => {
+      const newMintingDate = initialMintingDate + 86400; // Adding 1 day
+      await gameNFTCollection.setMintingDate(newMintingDate);
+      expect(await gameNFTCollection.mintingDate()).to.equal(newMintingDate);
+    });
+
+    it('Should not allow non-deployers to update the minting date', async () => {
+      const newMintingDate = initialMintingDate + 86400; // Adding 1 day
+      await expect(gameNFTCollection.connect(user1).setMintingDate(newMintingDate)).to.be.revertedWith(
+        'Ownable: caller is not the deployer'
+      );
+    });
   });
 
-  it("Should allow the owner to set the minting date", async function () {
-    const newMintingDate = Math.floor(Date.now() / 1000) + 86400; // Set minting date to tomorrow
+  describe('safeMint', () => {
+    it('Should allow the deployer to safely mint an NFT', async () => {
+      await expect(gameNFTCollection.safeMint()).to.emit(gameNFTCollection, 'NFTMinted');
+    });
 
-    await gameNFT.connect(owner).setMintingDate(newMintingDate);
+    it('Should not allow non-deployers to mint NFTs', async () => {
+      await expect(gameNFTCollection.connect(user1).safeMint()).to.be.revertedWith('Ownable: caller is not the deployer');
+    });
 
-    const updatedMintingDate = await gameNFT.mintingDate();
-    expect(updatedMintingDate).to.equal(newMintingDate);
+    it('Should not allow minting before the minting date', async () => {
+      const futureDate = initialMintingDate + 86400; // Adding 1 day
+      await gameNFTCollection.setMintingDate(futureDate);
+      await expect(gameNFTCollection.safeMint()).to.be.revertedWith('Minting is not yet available');
+    });
   });
 
-  it("Should prevent non-owners from setting the minting date", async function () {
-    const newMintingDate = Math.floor(Date.now() / 1000) + 86400; // Set minting date to tomorrow
+  describe('mintNFT', () => {
+    it('Should allow the deployer to mint an NFT on behalf of a user', async () => {
+      await expect(gameNFTCollection.mintNFT(user1.address)).to.emit(gameNFTCollection, 'NFTMinted');
+    });
 
-    await expect(gameNFT.connect(user).setMintingDate(newMintingDate)).to.be.revertedWith(
-      "Ownable: caller is not the owner"
-    );
+    it('Should not allow non-deployers to mint NFTs on behalf of users', async () => {
+      await expect(gameNFTCollection.connect(user1).mintNFT(user2.address)).to.be.revertedWith(
+        'Ownable: caller is not the deployer'
+      );
+    });
+
+    it('Should not allow minting before the minting date', async () => {
+      const futureDate = initialMintingDate + 86400; // Adding 1 day
+      await gameNFTCollection.setMintingDate(futureDate);
+      await expect(gameNFTCollection.mintNFT(user1.address)).to.be.revertedWith(
+        'Minting is not yet available'
+      );
+    });
   });
 
-  it("Should allow the owner to safely mint NFTs", async function () {
-    const mintingDate = Math.floor(Date.now() / 1000) + 86400; // Set minting date to tomorrow
-    await gameNFT.connect(owner).setMintingDate(mintingDate);
-
-    const initialBalance = await gameNFT.balanceOf(owner.address);
-    expect(initialBalance).to.equal(0); // Initially, owner has 0 NFTs
-
-    await gameNFT.connect(owner).safeMint();
-
-    const newBalance = await gameNFT.balanceOf(owner.address);
-    expect(newBalance).to.equal(1); // Owner should have 1 NFT
-  });
-
-  it("Should prevent non-owners from safely minting NFTs", async function () {
-    const mintingDate = Math.floor(Date.now() / 1000) + 86400; // Set minting date to tomorrow
-    await gameNFT.connect(owner).setMintingDate(mintingDate);
-
-    await expect(gameNFT.connect(user).safeMint()).to.be.revertedWith(
-      "Ownable: caller is not the owner"
-    );
+  describe('tokenURI', () => {
+    it('Should return the correct token URI', async () => {
+      const tokenId = 0; // Assuming you minted at least one NFT
+      const tokenURI = await gameNFTCollection.tokenURI(tokenId);
+      // Add your own expectations for the tokenURI based on your contract's implementation
+      expect(tokenURI).to.equal(`YourExpectedURI/${tokenId}`);
+    });
   });
 });

@@ -11,7 +11,7 @@ contract GameTicket is ERC20, ERC20Burnable, Ownable {
     // Event for token transfers
     event TokenTransfer(address indexed from, address indexed to, uint256 value);
 
-    // Function to mint gameTickets and distribute (if needed)
+    // Function to mint gameTickets and distribute
     function mintTickets(address to, uint256 amount) public onlyOwner {
         _mint(to, amount);
     }
